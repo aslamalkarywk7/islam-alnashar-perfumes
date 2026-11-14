@@ -14,6 +14,11 @@ const FAMILIES = [
   {slug: 'fresh', name_ar: 'منعش', name_en: 'Fresh'},
   {slug: 'woody', name_ar: 'خشبي', name_en: 'Woody'},
   {slug: 'oriental', name_ar: 'شرقي', name_en: 'Oriental'},
+  {slug: 'spicy', name_ar: 'حار', name_en: 'Spicy'},
+  {slug: 'leather', name_ar: 'جلدي', name_en: 'Leather'},
+  {slug: 'gourmand', name_ar: 'غورماند', name_en: 'Gourmand'},
+  {slug: 'aquatic', name_ar: 'مائي', name_en: 'Aquatic'},
+  {slug: 'chypre', name_ar: 'شيبر', name_en: 'Chypre'},
 ];
 
 interface SeedPerfume {
@@ -93,6 +98,81 @@ const PERFUMES: SeedPerfume[] = [
     notes_ar: ['عنبر', 'قرفة', 'لبان'], notes_en: ['Amber', 'Cinnamon', 'Frankincense'],
     desc_ar: 'رحلة صحراوية: عنبر دافئ وقرفة حارة ولبان بخوري. عطر شرقي جسور لمن يحب التميز.',
     desc_en: 'A desert journey: warm amber, spicy cinnamon and incense-like frankincense. A bold oriental for those who stand out.',
+  },
+  // ── World collection ────────────────────────────────────────
+  {
+    slug: 'paris-minuit', name_ar: 'باريس منتصف الليل', name_en: 'Paris Minuit', family: 'chypre',
+    price: 52000, compareAt: null, stock: 30, size: 100, concentration: 'Eau de Parfum',
+    notes_ar: ['برغموت', 'ياسمين', 'باتشولي'], notes_en: ['Bergamot', 'Jasmine', 'Patchouli'],
+    desc_ar: 'أناقة باريسية ليلية: برغموت لامع، قلب ياسمين مخملي، وقاعدة باتشولي أرضية. عطر شيبر كلاسيكي بروح عصرية.',
+    desc_en: 'Nocturnal Parisian elegance: radiant bergamot, a velvety jasmine heart and an earthy patchouli base. A classic chypre with a modern spirit.',
+    featured: true,
+  },
+  {
+    slug: 'tokyo-sakura', name_ar: 'طوكيو ساكورا', name_en: 'Tokyo Sakura', family: 'floral',
+    price: 43000, compareAt: null, stock: 36, size: 50, concentration: 'Eau de Toilette',
+    notes_ar: ['أزهار الكرز', 'مسك', 'خشب الأرز'], notes_en: ['Cherry blossom', 'Musk', 'Cedar'],
+    desc_ar: 'رقّة الربيع الياباني: أزهار كرز ناعمة تنساب على مسك أبيض وخشب أرز خفيف. عطر نقي وعابر كأوراق الساكورا.',
+    desc_en: 'The delicacy of Japanese spring: soft cherry blossoms drifting over white musk and light cedar. Pure and fleeting as sakura petals.',
+    featured: true,
+  },
+  {
+    slug: 'dubai-gold', name_ar: 'ذهب دبي', name_en: 'Dubai Gold', family: 'oriental',
+    price: 75000, compareAt: 89000, stock: 18, size: 100, concentration: 'Extrait de Parfum',
+    notes_ar: ['عود', 'زعفران', 'عنبر'], notes_en: ['Oud', 'Saffron', 'Amber'],
+    desc_ar: 'فخامة الخليج: عود فاخر وزعفران ذهبي وعنبر دافئ. عطر استثنائي بتركيز Extrait وثبات يقارب 14 ساعة.',
+    desc_en: 'Gulf opulence: precious oud, golden saffron and warm amber. An exceptional extrait with close to 14 hours of longevity.',
+    featured: true,
+  },
+  {
+    slug: 'istanbul-bazaar', name_ar: 'بازار إسطنبول', name_en: 'Istanbul Bazaar', family: 'spicy',
+    price: 49000, compareAt: null, stock: 28, size: 100, concentration: 'Eau de Parfum',
+    notes_ar: ['زعفران', 'قرفة', 'تبغ'], notes_en: ['Saffron', 'Cinnamon', 'Tobacco'],
+    desc_ar: 'عبق البازار العثماني: زعفران وقرفة وتبغ دافئ. عطر حار جسور يحمل حكايات الشرق في كل رشّة.',
+    desc_en: 'The scent of the Ottoman bazaar: saffron, cinnamon and warm tobacco. A bold spicy fragrance carrying eastern stories in every spray.',
+  },
+  {
+    slug: 'marrakech-souk', name_ar: 'سوق مراكش', name_en: 'Marrakech Souk', family: 'spicy',
+    price: 47000, compareAt: null, stock: 25, size: 100, concentration: 'Eau de Parfum',
+    notes_ar: ['توابل', 'بخور', 'عنبر'], notes_en: ['Spices', 'Incense', 'Amber'],
+    desc_ar: 'دفء المدينة الحمراء: توابل سوق مراكش، دخان بخور هادئ، وعنبر يلتف حول البشرة. عطر مغربي أصيل.',
+    desc_en: 'The warmth of the red city: Marrakech souk spices, calm incense smoke and amber wrapping the skin. An authentic Moroccan scent.',
+  },
+  {
+    slug: 'new-york-noir', name_ar: 'نيويورك نوار', name_en: 'New York Noir', family: 'leather',
+    price: 61000, compareAt: null, stock: 20, size: 100, concentration: 'Extrait de Parfum',
+    notes_ar: ['جلد', 'تبغ', 'عود'], notes_en: ['Leather', 'Tobacco', 'Oud'],
+    desc_ar: 'نيويورك بعد الغروب: جلد مدبوغ، تبغ غني، ولمسة عود داكنة. عطر رجالي حضري بثقة لا تُخطئ.',
+    desc_en: 'New York after dark: tanned leather, rich tobacco and a dark oud touch. An urban masculine scent with unmistakable confidence.',
+  },
+  {
+    slug: 'london-fog', name_ar: 'ضباب لندن', name_en: 'London Fog', family: 'aquatic',
+    price: 41000, compareAt: null, stock: 34, size: 100, concentration: 'Eau de Toilette',
+    notes_ar: ['نوتات مائية', 'بتولا', 'مسك'], notes_en: ['Aquatic notes', 'Birch', 'Musk'],
+    desc_ar: 'رطوبة صباح لندني: نوتات مائية باردة، خشب بتولا رطب، ومسك نظيف. منعش وأنيق للاستخدام اليومي.',
+    desc_en: 'The damp of a London morning: cool aquatic notes, wet birch wood and clean musk. Fresh and elegant for everyday wear.',
+  },
+  {
+    slug: 'bali-vanilla', name_ar: 'فانيليا بالي', name_en: 'Bali Vanilla', family: 'gourmand',
+    price: 44000, compareAt: 50000, stock: 33, size: 50, concentration: 'Eau de Parfum',
+    notes_ar: ['فانيليا', 'جوز الهند', 'تونكا'], notes_en: ['Vanilla', 'Coconut', 'Tonka'],
+    desc_ar: 'حلاوة استوائية: فانيليا مدغشقرية، حليب جوز هند، وحبّة تونكا دافئة. عطر غورماند مريح يشبه نسمة بالي.',
+    desc_en: 'Tropical sweetness: Madagascan vanilla, coconut milk and warm tonka bean. A comforting gourmand that feels like a Balinese breeze.',
+    featured: true,
+  },
+  {
+    slug: 'santorini-blue', name_ar: 'سانتوريني', name_en: 'Santorini Blue', family: 'aquatic',
+    price: 42000, compareAt: null, stock: 38, size: 50, concentration: 'Eau de Toilette',
+    notes_ar: ['نوتات بحرية', 'حمضيات', 'مسك'], notes_en: ['Marine notes', 'Citrus', 'Musk'],
+    desc_ar: 'زرقة البحر الإيجي: ملح بحري، حمضيات مشمسة، ومسك أبيض. عطر صيفي مشرق يذكّر بشواطئ سانتوريني.',
+    desc_en: 'The blue of the Aegean: sea salt, sunlit citrus and white musk. A bright summer scent that recalls the shores of Santorini.',
+  },
+  {
+    slug: 'kyoto-cedar', name_ar: 'أرز كيوتو', name_en: 'Kyoto Cedar', family: 'woody',
+    price: 53000, compareAt: null, stock: 24, size: 100, concentration: 'Eau de Parfum',
+    notes_ar: ['أرز', 'موس', 'بخور'], notes_en: ['Cedar', 'Moss', 'Incense'],
+    desc_ar: 'هدوء معبد ياباني: أرز كيوتو، طحالب رطبة، وبخور خفيف. عطر خشبي تأملي يوازن بين القوة والسكينة.',
+    desc_en: 'The stillness of a Japanese temple: Kyoto cedar, damp moss and light incense. A meditative woody scent balancing strength and calm.',
   },
 ];
 
