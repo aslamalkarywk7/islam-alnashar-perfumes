@@ -32,6 +32,87 @@ router.get(
   }),
 );
 
+// ── Analytics (consumed by the Aura Analytics dashboard) ────
+router.get(
+  '/analytics',
+  wrap(async (_req, res) => {
+    const kpis = db.prepare(`
+      SELECT
+        COALESCE(SUM(total), 0) AS revenue,
+        COUNT(*) AS orders,
+        COALESCE(AVG(total), 0) AS aov
+      FROM orders WHERE status NOT IN ('cancelled','refunded')
+    `).get() as {revenue: number; orders: number; aov: number};
+
+    const cancelled = (db.prepare(`SELECT COUNT(*) AS n FROM orders WHERE status IN ('cancelled','refunded')`).get() as {n: number}).n;
+
+    // Daily revenue/orders for the last 14 days (zero-filled in SQL via recursive CTE)
+    const daily = db.prepare(`
+      WITH RECURSIVE days(d) AS (
+        SELECT date('now', '-13 days')
+        UNION ALL
+        SELECT date(d, '+1 day') FROM days WHERE d < date('now')
+      )
+      SELECT days.d AS date,
+        COALESCE((SELECT SUM(o.total) FROM orders o
+          WHERE date(o.placed_at) = days.d AND o.status NOT IN ('cancelled','refunded')), 0) AS revenue,
+        COALESCE((SELECT COUNT(*) FROM orders o
+          WHERE date(o.placed_at) = days.d AND o.status NOT IN ('cancelled','refunded')), 0) AS orders,
+        COALESCE((SELECT SUM(o.discount) FROM orders o
+          WHERE date(o.placed_at) = days.d AND o.status NOT IN ('cancelled','refunded')), 0) AS discount
+      FROM days ORDER BY days.d
+    `).all();
+
+    const statusBreakdown = db.prepare(
+      'SELECT status, COUNT(*) AS count FROM orders GROUP BY status ORDER BY count DESC',
+    ).all();
+
+    const familyRevenue = db.prepare(`
+      SELECT c.slug, c.name_ar, c.name_en,
+        COALESCE(SUM(oi.line_total), 0) AS revenue,
+        COALESCE(SUM(oi.qty), 0) AS qty
+      FROM categories c
+      LEFT JOIN products p ON p.category_id = c.id
+      LEFT JOIN order_items oi ON oi.product_id = p.id
+      LEFT JOIN orders o ON o.id = oi.order_id AND o.status NOT IN ('cancelled','refunded')
+      GROUP BY c.id ORDER BY revenue DESC
+    `).all();
+
+    const topProducts = db.prepare(`
+      SELECT oi.name_ar, oi.name_en, SUM(oi.qty) AS qty_sold, SUM(oi.line_total) AS revenue
+      FROM order_items oi JOIN orders o ON o.id = oi.order_id
+      WHERE o.status NOT IN ('cancelled','refunded')
+      GROUP BY oi.name_ar, oi.name_en ORDER BY revenue DESC LIMIT 6
+    `).all();
+
+    const paymentSplit = db.prepare(`
+      SELECT payment_method AS method, COUNT(*) AS count, COALESCE(SUM(total),0) AS revenue
+      FROM orders WHERE status NOT IN ('cancelled','refunded') GROUP BY payment_method
+    `).all();
+
+    const coupons = db.prepare('SELECT code, type, value, used_count, max_uses FROM coupons ORDER BY used_count DESC').all();
+    const stockHealth = db.prepare(`
+      SELECT
+        SUM(CASE WHEN stock = 0 THEN 1 ELSE 0 END) AS out_of_stock,
+        SUM(CASE WHEN stock > 0 AND stock <= 10 THEN 1 ELSE 0 END) AS low_stock,
+        SUM(CASE WHEN stock > 10 THEN 1 ELSE 0 END) AS healthy
+      FROM products WHERE is_active = 1
+    `).get();
+
+    res.json({
+      kpis: {...kpis, cancelled},
+      daily,
+      status_breakdown: statusBreakdown,
+      family_revenue: familyRevenue,
+      top_products: topProducts,
+      payment_split: paymentSplit,
+      coupons,
+      stock_health: stockHealth,
+      generated_at: new Date().toISOString(),
+    });
+  }),
+);
+
 // ── Products ─────────────────────────────────────────────────
 const productSchema = z.object({
   sku: z.string().min(2).max(40),

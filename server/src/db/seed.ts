@@ -245,8 +245,70 @@ export function seed(): void {
         rating_avg = COALESCE((SELECT ROUND(AVG(rating), 2) FROM reviews WHERE product_id = products.id), 0),
         rating_count = (SELECT COUNT(*) FROM reviews WHERE product_id = products.id)
     `);
+
+    // ── Demo order history (last 14 days) so analytics has real data ──
+    const allProducts = db.prepare('SELECT id, name_ar, name_en, price, images FROM products ORDER BY id').all() as {
+      id: number; name_ar: string; name_en: string; price: number; images: string;
+    }[];
+    const insertOrder = db.prepare(`
+      INSERT INTO orders (order_number, user_id, status, payment_method, payment_status,
+        subtotal, discount, shipping_fee, total, placed_at, updated_at,
+        ship_name, ship_phone, ship_line1, ship_city, ship_country)
+      VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, datetime('now', ?), datetime('now', ?), ?, ?, ?, ?, ?)
+    `);
+    const insertItem = db.prepare(
+      'INSERT INTO order_items (order_id, product_id, name_ar, name_en, image, unit_price, qty, line_total) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    );
+    const statuses: {status: string; paid: string; weight: number}[] = [
+      {status: 'delivered', paid: 'paid', weight: 5},
+      {status: 'shipped', paid: 'paid', weight: 3},
+      {status: 'processing', paid: 'paid', weight: 2},
+      {status: 'paid', paid: 'paid', weight: 2},
+      {status: 'pending', paid: 'unpaid', weight: 2},
+      {status: 'cancelled', paid: 'refunded', weight: 1},
+    ];
+    const pool = statuses.flatMap(s => Array(s.weight).fill(s));
+    const buyers = [saraId, omarId];
+
+    for (let i = 0; i < 26; i++) {
+      const daysAgo = i % 14; // spread across the last two weeks
+      const s = pool[i % pool.length];
+      const p1 = allProducts[i % allProducts.length];
+      const p2 = allProducts[(i * 7 + 3) % allProducts.length];
+      const lines = [
+        {product: p1, qty: 1 + (i % 2)},
+        {product: p2, qty: 1},
+      ];
+      const subtotal = lines.reduce((sum, l) => sum + l.product.price * l.qty, 0);
+      const shipping = subtotal >= 50000 ? 0 : 2500;
+      const orderNumber = `AURA-2026-${String(1000 + i)}`;
+      const r = insertOrder.run(
+        orderNumber,
+        buyers[i % 2],
+        s.status,
+        i % 3 === 0 ? 'cod' : 'card',
+        s.paid,
+        subtotal,
+        shipping,
+        subtotal + shipping,
+        `-${daysAgo} days`,
+        `-${daysAgo} days`,
+        i % 2 === 0 ? 'Sara Ahmed' : 'Omar Khaled',
+        i % 2 === 0 ? '+966511111111' : '+966522222222',
+        'King Fahd Rd, Al Olaya',
+        'Riyadh',
+        'Saudi Arabia',
+      );
+      const orderId = Number(r.lastInsertRowid);
+      for (const l of lines) {
+        let img: string | null = null;
+        try { img = (JSON.parse(l.product.images) as string[])[0] ?? null; } catch { img = null; }
+        insertItem.run(orderId, l.product.id, l.product.name_ar, l.product.name_en, img, l.product.price, l.qty, l.product.price * l.qty);
+      }
+    }
   })();
 
   const total = (db.prepare('SELECT COUNT(*) AS n FROM products').get() as {n: number}).n;
-  console.log(`Seeded: ${FAMILIES.length} fragrance families, ${total} perfumes, users, coupons, reviews.`);
+  const orders = (db.prepare('SELECT COUNT(*) AS n FROM orders').get() as {n: number}).n;
+  console.log(`Seeded: ${FAMILIES.length} fragrance families, ${total} perfumes, ${orders} demo orders, users, coupons, reviews.`);
 }
