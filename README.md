@@ -127,7 +127,7 @@ All routes under `/api` — JSON in/out.
 ### Run
 
 ```bash
-git clone https://github.com/aslamalkarywk7/website-one.git aura-perfumes
+git clone https://github.com/aslamalkarywk7/islam-alnashar-perfumes.git aura-perfumes
 cd aura-perfumes
 npm install
 npm run dev        # API :3001 + Vite :5173 (proxied) in one command
